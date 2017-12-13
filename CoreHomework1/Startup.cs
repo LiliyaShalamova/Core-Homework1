@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +21,18 @@ namespace CoreHomework1
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<MeasureTimeMiddleware>();
+
+            app.Use(async (context, next) =>
+            {
+                var timer = new Stopwatch();
+                timer.Start();
+                //
+                timer.Stop();
+                await context.Response.WriteAsync($"Middleware function: {timer.ElapsedMilliseconds} milliseconds\n");
+                await next.Invoke();
+            });
 
             app.Run(async (context) =>
             {
